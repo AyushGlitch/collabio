@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: admin  # Replace with your preferred username
+      POSTGRES_PASSWORD: password  # Replace with your preferred password
+      POSTGRES_DB: collabio-db  # Replace with your preferred database name
+    ports:
+      - "5432:5432"
+    networks:
+      - my-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Persist Postgres data
+
+networks:
+  my-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
