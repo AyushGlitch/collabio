@@ -6,13 +6,8 @@ import { Command, CommandEmpty, CommandItem, CommandList } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { User } from "@/types/User";
 
-type User = {
-    id: string,
-    name: string,
-    email: string,
-    image: string
-}
 
 // Mock API function for demonstration (replace with your actual API call)
 async function searchFriends(searchTerm: string) {
