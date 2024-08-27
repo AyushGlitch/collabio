@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandItem, CommandList } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type User = {
     id: string,
@@ -59,6 +60,25 @@ export default function FriendSearch() {
     }, [searchTerm]);
 
 
+    async function handleAddFriend(id: string) {
+        const response= await fetch('/api/friends/add', {
+            method: 'POST',
+            body: JSON.stringify({ id }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        const data = await response.json();
+        console.log(data);
+        if (response.ok) {
+            toast.success('Friend request sent successfully');
+        }
+        else {
+            toast.error('Failed to send friend request');
+        }
+    }
+
+
     return (
         <div className="flex flex-col gap-5 justify-center py-5 px-3 bg-slate-700 rounded-3xl h-full">
             <Input
@@ -93,7 +113,7 @@ export default function FriendSearch() {
                                         </Avatar>
                                     </div>
                                 </div>
-                                <Button>Add Friend</Button>
+                                <Button onClick={() => handleAddFriend(user.id)}>Add Friend</Button>
                             </CommandItem>
                         ))
                     )}

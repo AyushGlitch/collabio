@@ -15,6 +15,11 @@ model User {
   image         String?
   accounts      Account[]
   // sessions      Session[]
+  friends       Friends[]       @relation("UserFriends")
+  friendOf      Friends[]       @relation("FriendOfUser")
+
+  friendRequestsSent    FriendRequest[] @relation("UserFriendsRequest")
+  friendRequestsReceived FriendRequest[] @relation("FriendOfUserRequest")
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -40,13 +45,31 @@ model Account {
  
   @@id([provider, providerAccountId])
 }
- 
-// model Session {
-//   sessionToken String   @unique
-//   userId       String
-//   expires      DateTime
-//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
+
+model Friends {
+  userId   String
+  friendId String
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, name: "UserFriends")
+  friend User @relation(fields: [friendId], references: [id], onDelete: Cascade, name: "FriendOfUser")
+
+  @@id([userId, friendId])
+}
+
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model FriendRequest {
+  userId   String
+  friendId String
+  status  FriendRequestStatus   @default(PENDING)
+
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade, name: "UserFriendsRequest")
+  friend  User   @relation(fields: [friendId], references: [id], onDelete: Cascade, name: "FriendOfUserRequest")
+
+  @@id([userId, friendId])
+}

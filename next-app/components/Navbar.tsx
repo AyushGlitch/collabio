@@ -67,7 +67,7 @@ export const Navbar= () => {
 
                                 <h1 className="text-base font-medium">{session.data.user.name}</h1>
                             </div>
-                            <Button variant={"secondary"} className="text-base font-medium" onClick={() => signOut()}>
+                            <Button variant={"secondary"} className="text-base font-medium" onClick={() => signOut({callbackUrl: '/'})}>
                                 Sign Out
                             </Button>
                         </div>
