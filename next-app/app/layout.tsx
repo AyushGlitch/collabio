@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/sonner";
+import { RecoilRoot } from "recoil";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,10 +21,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        <SessionProvider>
-          <Navbar />
-        </SessionProvider>
-        {children}
+        {/* <RecoilRoot> */}
+          <SessionProvider>
+            <Navbar />
+          </SessionProvider>
+          {children}
+        {/* </RecoilRoot> */}
       </body>
       <Toaster richColors={true} duration={3000} />
     </html>

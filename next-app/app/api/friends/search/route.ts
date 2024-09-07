@@ -25,7 +25,12 @@ export async function POST(req: NextRequest) {
                 to_tsvector('english', "User"."name") @@ to_tsquery('english', ${formattedSearchTerm})
                 OR to_tsvector('english', "User"."email") @@ to_tsquery('english', ${formattedSearchTerm})
             )
-            AND "User"."email" != ${session.user?.email}
+            AND "User"."id" != ${session.user?.id}
+            AND "User"."id" NOT IN (
+                SELECT "friendId"
+                FROM "Friends"
+                WHERE "userId" = ${session.user?.id}
+            )
             LIMIT 5;
         `;
         console.log(session.user.id)

@@ -3,6 +3,7 @@ import { prisma } from "@/prisma/prismaClient";
 import { NextRequest, NextResponse } from "next/server";
 
 
+
 export async function GET (req: NextRequest) {
     try {
         const session= await auth()
@@ -10,13 +11,12 @@ export async function GET (req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const friendRequests= await prisma.friendRequest.findMany({
+        const friends= await prisma.friends.findMany({
             where: {
-                friendId: session.user.id,
-                status: "PENDING"
+                userId: session.user.id
             },
             select: {
-                user: {
+                friend: {
                     select: {
                         id: true,
                         name: true,
@@ -27,16 +27,15 @@ export async function GET (req: NextRequest) {
             }
         })
 
-        const friendRequestsArray = friendRequests.map(request => ({
-            id: request.user.id,
-            name: request.user.name,
-            email: request.user.email,
-            image: request.user.image
-        }));
-        console.log(friendRequestsArray)
-        return NextResponse.json(friendRequestsArray, { status: 200 });
-    }   
-    
+        const friendsArray= friends.map( friend => ({
+            id: friend.friend.id,
+            name: friend.friend.name,
+            email: friend.friend.email,
+            image: friend.friend.image
+        }))
+
+        return NextResponse.json(friendsArray, { status: 200 });
+    }
     catch (error) {
         console.error("Error fetching friend requests:", error);
         return NextResponse.json({ error: "Failed to fetch friend requests" }, { status: 500 });

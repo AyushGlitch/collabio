@@ -3,13 +3,16 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { friendsAtom } from "@/store/friends";
 import { User } from "@/types/User";
 import { useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
 import { toast } from "sonner";
 
 
 export default function FriendRequest() {
     const [friendRequests, setFriendRequests] = useState<User[]>([]);
+    const [friends, setFriends]= useRecoilState(friendsAtom)
 
     useEffect( () => {
         async function fetchFriendRequests() {
@@ -20,7 +23,6 @@ export default function FriendRequest() {
             else {
                 const data= await resp.json();
                 setFriendRequests(data);
-                toast.success('Friend requests fetched');
             }
         }
 
@@ -29,7 +31,24 @@ export default function FriendRequest() {
 
 
     async function handleAcceptRequest(id: string) {
+        const resp= await fetch(`/api/friends/requests/accept`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ friendId: id})
+        })
+        
+        if (resp.status !== 200) {
+            toast.error('Failed to accept friend request');
+        }
+        else {
+            toast.success('Friend request accepted');
+            setFriendRequests( prev => prev.filter( user => user.id !== id))
 
+            const newFriend: User= await resp.json()
+            setFriends( prev => [newFriend, ...prev])
+        }
     }
 
     async function handleRejectRequest(id: string) {
