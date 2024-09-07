@@ -82,7 +82,7 @@ export default function FriendSearch() {
                 className="text-lg font-semibold h-[10%]"
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Command className="bg-blue-30">
+            <Command className="rounded-lg border shadow-md">
                 <CommandList className="bg-zinc-700 max-h-[60vh]">
                     {data.length === 0 ? (
                         <CommandEmpty>No results found.</CommandEmpty>

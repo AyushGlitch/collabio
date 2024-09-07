@@ -25,6 +25,13 @@ export async function POST (req: NextRequest) {
                     status: "PENDING"
                 }
             }),
+            prisma.friendRequest.deleteMany({
+                where: {
+                    userId: session.user.id,
+                    friendId: friendId,
+                    status: "PENDING"
+                }
+            }),
             prisma.friends.createManyAndReturn({
                 data: [
                     {

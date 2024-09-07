@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
-import { SessionProvider } from "next-auth/react";
-import { Toaster } from "@/components/ui/sonner";
-import { RecoilRoot } from "recoil";
+import { Providers } from "@/components/Providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,14 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        {/* <RecoilRoot> */}
-          <SessionProvider>
+          <Providers>
             <Navbar />
-          </SessionProvider>
-          {children}
-        {/* </RecoilRoot> */}
+            {children}
+          </Providers>
       </body>
-      <Toaster richColors={true} duration={3000} />
     </html>
   );
 }

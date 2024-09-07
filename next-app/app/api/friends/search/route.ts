@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
             )
             LIMIT 5;
         `;
-        console.log(session.user.id)
+        // console.log(session.user.id)
         return NextResponse.json(result, { status: 200 });
 
     } catch (error) {

@@ -44,15 +44,29 @@ export default function FriendRequest() {
         }
         else {
             toast.success('Friend request accepted');
-            setFriendRequests( prev => prev.filter( user => user.id !== id))
-
             const newFriend: User= await resp.json()
-            setFriends( prev => [newFriend, ...prev])
+
+            setFriends( prev => [...prev, newFriend])
+            setFriendRequests( prev => prev.filter( user => user.id !== id))
         }
     }
 
     async function handleRejectRequest(id: string) {
+        const resp= await fetch(`/api/friends/requests/reject`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ friendId: id })
+        })
 
+        if (resp.status !== 200) {
+            toast.error('Failed to reject friend request');
+        }
+        else {
+            toast.success('Friend request rejected');
+            setFriendRequests( prev => prev.filter( user => user.id !== id))
+        }
     }
 
     return (
@@ -86,8 +100,8 @@ export default function FriendRequest() {
                                     </div>
                                     
                                     <div className="flex justify-around items-center w-full">
-                                        <Button onClick={() => handleAcceptRequest(user.id)} className="bg-emerald-400">Accept</Button>
-                                        <Button onClick={() => handleRejectRequest(user.id)} className="bg-rose-400">Reject</Button>
+                                        <Button size={"sm"} onClick={() => handleAcceptRequest(user.id)} className="bg-emerald-400">Accept</Button>
+                                        <Button size={"sm"} onClick={() => handleRejectRequest(user.id)} className="bg-rose-400">Reject</Button>
                                     </div>
                                 </CommandItem>
                             )

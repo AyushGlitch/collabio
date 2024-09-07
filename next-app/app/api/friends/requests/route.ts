@@ -33,7 +33,7 @@ export async function GET (req: NextRequest) {
             email: request.user.email,
             image: request.user.image
         }));
-        console.log(friendRequestsArray)
+        // console.log(friendRequestsArray)
         return NextResponse.json(friendRequestsArray, { status: 200 });
     }   
     
