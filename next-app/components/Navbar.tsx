@@ -7,6 +7,9 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useSession, signOut } from "next-auth/react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { useRecoilState, useSetRecoilState } from "recoil"
+import { userAtom } from "@/store/user"
+import { useEffect } from "react"
 
 
 const links= [
@@ -29,11 +32,20 @@ const links= [
 
 
 export const Navbar= () => {
+    const [user, setUser]= useRecoilState(userAtom)
+
     const pathname= usePathname()
     const parentDir= pathname.split('/')[1]
-    // console.log(parentDir)
-    const session= useSession()
 
+    const session= useSession()
+    
+    useEffect( () => {
+        if (session.data?.user) {
+            // @ts-ignore
+            setUser(session.data.user)
+        }
+    }, [])
+    
     return (
         <div className="absolute w-full top-0">
             <div className="flex justify-between items-center py-3 px-5 bg-slate-900 rounded-b-3xl">

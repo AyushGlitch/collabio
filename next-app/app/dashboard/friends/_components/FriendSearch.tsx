@@ -75,7 +75,7 @@ export default function FriendSearch() {
 
 
     return (
-        <div className="flex flex-col gap-5 justify-center py-5 px-3 bg-slate-700 rounded-3xl h-full">
+        <div className="flex flex-col gap-1 justify-center py-5 px-3 bg-slate-700 rounded-3xl h-full">
             <Input
                 placeholder="Search ..."
                 type="text"
@@ -108,7 +108,7 @@ export default function FriendSearch() {
                                         </Avatar>
                                     </div>
                                 </div>
-                                <Button onClick={() => handleAddFriend(user.id)}>Add Friend</Button>
+                                <Button size={"sm"} className="bg-blue-400" onClick={() => handleAddFriend(user.id)}>Add Friend</Button>
                             </CommandItem>
                         ))
                     )}

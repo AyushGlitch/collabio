@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "add:comp": "pnpm dlx shadcn-ui@latest add",
+    "add:comp": "pnpm dlx shadcn@latest add",
     "generate": "prisma generate",
     "migrate": "prisma migrate dev"
   },
@@ -16,6 +16,7 @@
     "@prisma/client": "^5.18.0",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.1",
+    "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

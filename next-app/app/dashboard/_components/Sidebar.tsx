@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Presentation, CircleUserRound } from 'lucide-react'
+import { Presentation, CircleUserRound, NotebookPen } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 
 
@@ -17,6 +17,11 @@ const sidebarList= [
         icon: <CircleUserRound height={40} width={40} />,
         curr: 'friends'
     },
+    {
+        title: 'Notes',
+        icon: <NotebookPen height={40} width={40} />,
+        curr: 'notes'
+    }
 ]
 
 
