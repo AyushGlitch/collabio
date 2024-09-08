@@ -45,8 +45,8 @@ export default function FriendRequest() {
         else {
             toast.success('Friend request accepted');
             const newFriend: User= await resp.json()
-
-            setFriends( prev => [...prev, newFriend])
+            const updatedFriends: User[]= [...friends, newFriend]
+            setFriends( updatedFriends)
             setFriendRequests( prev => prev.filter( user => user.id !== id))
         }
     }

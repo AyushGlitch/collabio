@@ -1,13 +1,22 @@
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { boardsAtom } from "@/store/board";
+import { userAtom } from "@/store/user";
 import { Board } from "@/types/Board";
 import { User } from "@/types/User";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { toast } from "sonner";
 
 
 export default function BoardCard ({board} : {board: Board}) {
     const [members, setMembers]= useState<User[]>([])
+    const [boards, setBoards]= useRecoilState(boardsAtom)
+    const currUser= useRecoilValue(userAtom)
+    const router= useRouter()
 
     useEffect( () => {
         async function getBoardMembers () {
@@ -31,8 +40,51 @@ export default function BoardCard ({board} : {board: Board}) {
         getBoardMembers()
     }, [] )
 
+
+    async function handleDeleteBoard(boardId: string) {
+        const resp= await fetch(`/api/boards/delete`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ boardId })
+        })
+
+        if (resp.status !== 200) {
+            console.error("Failed to delete board")
+            toast.error("Failed to delete board")
+        }
+        else {
+            toast.success("Board deleted")
+            const updatedBoards= boards.filter( (board) => board.boardId !== boardId)
+            setBoards(updatedBoards)
+        }
+    }
+
+
+    async function handleLeaveBoard(boardId: string) {
+        const resp= await fetch(`/api/boards/leave`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ boardId })
+        })
+
+        if (resp.status !== 200) {
+            console.error("Failed to leave board")
+            toast.error("Failed to leave board")
+        }
+        else {
+            toast.success("Board left")
+            const updatedBoards= boards.filter( (board) => board.boardId !== boardId)
+            setBoards(updatedBoards)
+        }
+    }
+
+
     return (
-        <div className="bg-slate-700 group p-4 aspect-square h-100 rounded-3xl flex flex-col gap-2 overflow-x-hidden no-scrollbar hover:cursor-pointer hover:scale-105">
+        <div className="bg-slate-700 group p-4 aspect-square h-100 rounded-3xl flex flex-col gap-2 overflow-x-hidden no-scrollbar hover:scale-105">
             <p className="text-2xl font-bold mb-2 underline">{board.boardTitle}</p>
             <p className="text-base font-medium"><span className="font-bold">Board Id: </span>{board.boardId}</p>
             <div className="text-base font-medium flex items-center">
@@ -77,6 +129,23 @@ export default function BoardCard ({board} : {board: Board}) {
             <p className="text-base font-medium"><span className="font-bold">Notes Cnt: </span>{board.notesCnt}</p>
             <p className="text-base font-medium"><span className="font-bold">UpdatedAt: </span>{board.updatedAt.split('T')[0]}</p>
             <p className="text-base font-medium"><span className="font-bold">CreatedAt: </span>{board.createdAt.split('T')[0]}</p>
+
+            <div className="flex justify-around">
+                <Button className="bg-emerald-400 w-32 font-bold text-base" onClick={() => router.push(`/board/${board.boardId}`)}>
+                    View
+                </Button>
+                {
+                    board.createdBy === currUser.id ? (
+                        <Button className="bg-rose-400 w-32 font-bold text-base" onClick={() => handleDeleteBoard(board.boardId)}>
+                            Delete
+                        </Button>
+                    ) : (
+                        <Button className="bg-rose-400 w-32 font-bold text-base" onClick={() => handleLeaveBoard(board.boardId)}>
+                            Leave
+                        </Button>
+                    )
+                }
+            </div>
         </div>
     )
 }

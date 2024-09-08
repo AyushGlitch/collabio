@@ -16,26 +16,27 @@ export default function FriendList() {
     const [loading, setLoading]= useState<boolean>(false)
 
 
-    // useEffect( () => {
-    //     async function getFriendsList () {
-    //         const resp= await fetch(`/api/friends/list`, {
-    //             method: "GET",
-    //             headers: {
-    //                 "Content-Type": "application/json"
-    //             }
-    //         })
+    useEffect( () => {
+        async function getFriendsList () {
+            const resp= await fetch(`/api/friends/list`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
         
-    //         if (resp.status !== 200) {
-    //             console.error("Failed to fetch friends")
-    //         }
-    //         else {
-    //             const data= await resp.json()
-    //             await setFriends(data)
-    //         }
-    //     }
+            if (resp.status !== 200) {
+                console.error("Failed to fetch friends")
+                toast.error("Failed to fetch friends")
+            }
+            else {
+                const data= await resp.json()
+                await setFriends(data)
+            }
+        }
 
-    //     getFriendsList()
-    // }, [] )
+        getFriendsList()
+    }, [] )
 
 
     const handleRemoveFriend= async (id: string) => {

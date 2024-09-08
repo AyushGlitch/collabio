@@ -92,10 +92,10 @@ model Boards {
 
 model UsersBoards {
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   boardId String
-  board   Boards @relation(fields: [boardId], references: [boardId])
+  board   Boards @relation(fields: [boardId], references: [boardId], onDelete: Cascade)
 
   @@id([userId, boardId])
 }
@@ -108,5 +108,5 @@ model Notes {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  board Boards @relation(fields: [boardId], references: [boardId])
+  board Boards @relation(fields: [boardId], references: [boardId], onDelete: Cascade)
 }
