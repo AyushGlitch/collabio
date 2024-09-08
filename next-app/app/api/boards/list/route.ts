@@ -28,10 +28,11 @@ export async function GET (req: NextRequest) {
                         updatedAt: true,
                     }
                 }
-            }
+            },
         })
 
         const boards= boardsQuery.map( (board) => board.board )
+        // console.log("Boards:", boards);
         return NextResponse.json(boards, { status: 200 })
     }
     catch (error) {

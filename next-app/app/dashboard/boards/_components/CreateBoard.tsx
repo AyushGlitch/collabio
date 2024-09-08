@@ -1,3 +1,5 @@
+"use client"
+
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -6,11 +8,15 @@ import AddFriends from "./AddFriends"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { toast } from "sonner"
+import { useRecoilState } from "recoil"
+import { boardsAtom } from "@/store/board"
 
 
 export default function CreateBoard() {
     const [addedFriends, setAddedFriends]= useState<string[]>([])
     const [boardTitle, setBoardTitle]= useState<string>("")
+    const [boards, setBoards]= useRecoilState(boardsAtom)
+    // console.log("Rerendering CreateBoard")
 
 
     function handleAddFriend(id: string) {
@@ -39,6 +45,10 @@ export default function CreateBoard() {
         }
         else {
             toast.success("Board created")
+            const newBoard= await resp.json()
+            setBoards( prev => [newBoard, ...prev] )
+            setBoardTitle("")
+            setAddedFriends([])
         }
     }
 

@@ -1,8 +1,9 @@
-import { User } from "@/types/User";
+import { Board } from "@/types/Board";
 import { atom, selector } from "recoil";
 
-async function getFriendsList() {
-    const resp= await fetch(`/api/friends/list`, {
+
+async function getBoardsList() {
+    const resp= await fetch(`/api/boards/list`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
@@ -10,7 +11,7 @@ async function getFriendsList() {
     })
 
     if (resp.status !== 200) {
-        console.error("Failed to fetch friends")
+        console.error("Failed to fetch boards")
     }
     else {
         const data= await resp.json()
@@ -18,12 +19,13 @@ async function getFriendsList() {
     }
 }
 
-export const friendsAtom= atom<User[]>({
-    key: 'friends',
+
+export const boardsAtom= atom<Board[]> ({
+    key: "boards",
     default: selector({
-        key: "friendsSelector",
+        key: "boardsSelector",
         get: async () => {
-            return await getFriendsList()
+            return await getBoardsList()
         }
     })
 })
