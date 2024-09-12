@@ -7,8 +7,7 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useSession, signOut } from "next-auth/react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { useRecoilState, useSetRecoilState } from "recoil"
-import { userAtom } from "@/store/user"
+import { useUserStore } from "@/store/user"
 import { useEffect } from "react"
 
 
@@ -32,7 +31,11 @@ const links= [
 
 
 export const Navbar= () => {
-    const [user, setUser]= useRecoilState(userAtom)
+    // const [user, setUser]= useRecoilState(userAtom)
+    const user= useUserStore( state => state.getUser() )
+    const setUser= useUserStore( state => state.setUser )
+
+    // console.log("user", user)
 
     const pathname= usePathname()
     const parentDir= pathname.split('/')[1]
@@ -40,11 +43,11 @@ export const Navbar= () => {
     const session= useSession()
     
     useEffect( () => {
-        if (session.data?.user) {
+        if (session.data?.user && user.id === "") {
             // @ts-ignore
             setUser(session.data.user)
         }
-    }, [])
+    }, [session])
     
     return (
         <div className="absolute w-full top-0">

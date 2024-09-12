@@ -1,30 +1,28 @@
 import { User } from "@/types/User";
-import { atom, selector } from "recoil";
+import { create } from "zustand";
 
-// async function getFriendsList() {
-//     const resp= await fetch(`/api/friends/list`, {
-//         method: "GET",
-//         headers: {
-//             "Content-Type": "application/json"
-//         }
-//     })
+type friendsState= {
+    friends: User[],
+}
 
-//     if (resp.status !== 200) {
-//         console.error("Failed to fetch friends")
-//     }
-//     else {
-//         const data= await resp.json()
-//         return data
-//     }
-// }
+type friendsStoreType= {
+    friends: User[],
+    setFriends: (friends: friendsState['friends']) => void,
+    addFriend: (friend: User) => void,
+    getFriends: () => friendsState['friends']
+}
 
-export const friendsAtom= atom<User[]>({
-    key: 'friends',
-    default: []
-    // selector({
-    //     key: "friendsSelector",
-    //     get: async () => {
-    //         return await getFriendsList()
-    //     }
-    // })
-})
+export const useFriendsStore= create<friendsStoreType>() ( (set, get) => ({
+    friends: [],
+    getFriends: () => get().friends,
+    setFriends: (friends) => {
+        set( () => ({
+            friends: friends
+        }) )
+    },
+    addFriend: (friend) => {
+        set( (state) => ({
+            friends: [...state.friends, friend]
+        }) )
+    }
+}) )

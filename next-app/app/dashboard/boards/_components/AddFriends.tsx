@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { friendsAtom } from "@/store/friends";
+import { friendsAtom, useFriendsStore } from "@/store/friends";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { useRecoilState } from "recoil";
@@ -11,7 +11,8 @@ import { useRecoilState } from "recoil";
 
 
 export default function AddFriends({handleAddFriend, addedFriends} : {handleAddFriend: (id: string) => void, addedFriends: string[]}) {
-    const [friends, setFriends]= useRecoilState(friendsAtom)
+    // const [friends, setFriends]= useRecoilState(friendsAtom)
+    const [friends, setFriends] = useFriendsStore( (state) => ([state.friends, state.setFriends]) )
 
     return (
         <div className="flex flex-col gap-5 justify-center py-5 px-3 bg-slate-700 rounded-3xl h-full">

@@ -3,19 +3,21 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { boardsAtom } from "@/store/board";
-import { userAtom } from "@/store/user";
+import { useUserStore } from "@/store/user";
 import { Board } from "@/types/Board";
 import { User } from "@/types/User";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { toast } from "sonner";
 
 
 export default function BoardCard ({board} : {board: Board}) {
     const [members, setMembers]= useState<User[]>([])
     const [boards, setBoards]= useRecoilState(boardsAtom)
-    const currUser= useRecoilValue(userAtom)
+    // const currUser= useRecoilValue(userAtom)
+    const currUser= useUserStore( state => state.getUser() )
+    // console.log("currUser", currUser)
     const router= useRouter()
 
     useEffect( () => {
