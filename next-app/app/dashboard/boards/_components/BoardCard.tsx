@@ -2,19 +2,18 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { boardsAtom } from "@/store/board";
+import { useBoardsStore } from "@/store/board";
 import { useUserStore } from "@/store/user";
 import { Board } from "@/types/Board";
 import { User } from "@/types/User";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
 import { toast } from "sonner";
 
 
 export default function BoardCard ({board} : {board: Board}) {
     const [members, setMembers]= useState<User[]>([])
-    const [boards, setBoards]= useRecoilState(boardsAtom)
+    const [boards, setBoards]= useBoardsStore( state => [state.getBoards(), state.setBoards] )
     // const currUser= useRecoilValue(userAtom)
     const currUser= useUserStore( state => state.getUser() )
     // console.log("currUser", currUser)

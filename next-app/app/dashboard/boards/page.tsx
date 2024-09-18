@@ -1,16 +1,15 @@
 "use client"
 
-import { useRecoilState, useSetRecoilState } from "recoil"
 import BoardCard from "./_components/BoardCard"
 import CreateBoard from "./_components/CreateBoard"
-import { boardsAtom } from "@/store/board"
+import { useBoardsStore } from "@/store/board"
 import { useEffect } from "react"
-import { friendsAtom, useFriendsStore } from "@/store/friends"
+import { useFriendsStore } from "@/store/friends"
 import { toast } from "sonner"
 
 
 export default function Boards() {
-    const [boards, setBoards]= useRecoilState(boardsAtom)
+    const [boards, setBoards]= useBoardsStore( state => [state.boards, state.setBoards] )
     // const setFriends= useSetRecoilState(friendsAtom)
     const setFriends= useFriendsStore( state => state.setFriends )
     // console.log("Boards:", boards);

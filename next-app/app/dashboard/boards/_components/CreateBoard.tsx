@@ -8,14 +8,13 @@ import AddFriends from "./AddFriends"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { toast } from "sonner"
-import { useRecoilState } from "recoil"
-import { boardsAtom } from "@/store/board"
+import { useBoardsStore } from "@/store/board"
 
 
 export default function CreateBoard() {
     const [addedFriends, setAddedFriends]= useState<string[]>([])
     const [boardTitle, setBoardTitle]= useState<string>("")
-    const [boards, setBoards]= useRecoilState(boardsAtom)
+    const [boards, setBoards]= useBoardsStore( state => [state.getBoards(), state.setBoards] )
     // console.log("Rerendering CreateBoard")
 
 
@@ -46,7 +45,8 @@ export default function CreateBoard() {
         else {
             toast.success("Board created")
             const newBoard= await resp.json()
-            setBoards( prev => [newBoard, ...prev] )
+            const updatedBoards= [newBoard, ...boards]
+            setBoards( updatedBoards)
             setBoardTitle("")
             setAddedFriends([])
         }

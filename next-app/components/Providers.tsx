@@ -8,9 +8,7 @@ import { Toaster } from "sonner"
 export const Providers= ({children}: {children: React.ReactNode}) => {
     return (
         <SessionProvider>
-            <RecoilRoot>
                 {children}
-            </RecoilRoot>
             <Toaster richColors={true} duration={3000} />
         </SessionProvider>
     )

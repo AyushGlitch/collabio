@@ -5,7 +5,7 @@ import Image from 'next/image';
 export default function Home() {
 
     return (
-        <div className="flex flex-col mt-40 mb-10 mx-10 gap-16 justify-center items-center min-h-screen">
+        <div className="flex flex-col mt-40 mb-10 mx-10 gap-16 justify-center items-center min-h-screen no-scrollbar">
             <h1 className="text-6xl font-bold">Welcome to Collabio...!!!</h1>
             <section className="flex mx-16 gap-10 mt-10 justify-between items-center relative">
                 <Image src="/collabio2.jpeg" alt="Collabio" width={500} height={300} className="rounded-3xl" />

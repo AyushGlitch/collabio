@@ -1,32 +1,30 @@
 import { Board } from "@/types/Board";
-import { atom, selector } from "recoil";
+import { create } from "zustand";
 
 
-// async function getBoardsList() {
-//     const resp= await fetch(`/api/boards/list`, {
-//         method: "GET",
-//         headers: {
-//             "Content-Type": "application/json"
-//         }
-//     })
+type boardsState= {
+    boards: Board[],
+}
 
-//     if (resp.status !== 200) {
-//         console.error("Failed to fetch boards")
-//     }
-//     else {
-//         const data= await resp.json()
-//         return data
-//     }
-// }
+type boardsStoreType= {
+    boards: Board[],
+    setBoards: (boards: boardsState['boards']) => void,
+    addBoard: (board: Board) => void,
+    getBoards: () => boardsState['boards']
+}
 
 
-export const boardsAtom= atom<Board[]> ({
-    key: "boards",
-    default: []
-    // selector({
-    //     key: "boardsSelector",
-    //     get: async () => {
-    //         return await getBoardsList()
-    //     }
-    // })
-})
+export const useBoardsStore= create<boardsStoreType>() ( (set, get) => ({
+    boards: [],
+    getBoards: () => get().boards,
+    setBoards: (boards) => {
+        set( () => ({
+            boards: boards
+        }) )
+    },
+    addBoard: (board) => {
+        set( (state) => ({
+            boards: [...state.boards, board]
+        }) )
+    }
+}) )
