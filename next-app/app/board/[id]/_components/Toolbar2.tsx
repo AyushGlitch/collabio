@@ -68,7 +68,7 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
     };
 
 
-    async function handleInitialCanvasLoad(data: any) {
+    async function handleCanvasLoad(data: any) {
         await canvas!.loadFromJSON(data, 
             () => {
                 canvas!.requestRenderAll()
@@ -90,7 +90,7 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
         socket.emit('get-initial-state', (data: any) => {
             // console.log("Initial state: ", data)
             if (data) {
-                handleInitialCanvasLoad(data)
+                handleCanvasLoad(data)
             }
             // console.log("Objects: ", canvas._objects)
         })
@@ -154,9 +154,14 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
         //     canvas!.loadFromJSON(state, canvas?.renderAll.bind(canvas))
         //     console.log("Initial state: ", state)
         // })
+
+        socket.on("undo-redo-state", (state) => {
+            if (state) {
+                canvas!.clear()
+                handleCanvasLoad(state)
+            }
+        })
     }, [canvas, socket] )
-
-
 
 
     function handleToolbarIconsClick(shape: "square"|"circle"|"triangle") {
@@ -220,11 +225,11 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
     }
 
     function handleUndoIconClick() {
-        
+        socket?.emit("undo-initialized")
     }
 
     function handleRedoIconClick() {
-        
+        socket?.emit("redo-initialized")
     }
 
     return (

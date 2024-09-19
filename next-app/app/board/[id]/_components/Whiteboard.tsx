@@ -21,9 +21,11 @@ export default function Whiteboard({socket} : {socket: Socket|null}) {
         const fabricCanvas= new fabric.Canvas(canvasRef.current!, {
             backgroundColor: "white",
             // @ts-ignore
-            width: canvasWrapperRef.current.offsetWidth +11,
+            // width: canvasWrapperRef.current.offsetWidth +11,
+            width:2000,
             // @ts-ignore
-            height: canvasWrapperRef.current.offsetHeight -4,
+            // height: canvasWrapperRef.current.offsetHeight -4,
+            height: 2000,
             allowTouchScrolling: true,
         })
         setCanvas(fabricCanvas)
@@ -49,7 +51,7 @@ export default function Whiteboard({socket} : {socket: Socket|null}) {
 
 
     return (
-        <div className="h-full w-full bg-red-300" ref={canvasWrapperRef}>
+        <div className="h-full w-full bg-red-300 overflow-auto" ref={canvasWrapperRef}>
             {/* <Toolbar canvas={canvas} socket={socket} /> */}
             <Toolbar2 canvas={canvas} socket={socket} />
             <canvas ref={canvasRef} className="border-4 border-emerald-400 overflow-auto" />

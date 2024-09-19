@@ -17,15 +17,15 @@ export default function Page({params} : {params: {id: string}}) {
                 <Loader size={200} />
             </div>
         ) :
-        (<div className="grid grid-cols-5 pt-[7%] min-h-screen gap-1">
-            <div className="col-span-4">
+        (<div className="grid grid-cols-11 pt-[7%] max-h-screen gap-1">
+            <div className="col-span-8 max-h-screen">
                 <Whiteboard socket={socket} />
             </div>
-            <div className="grid grid-rows-3">
+            <div className="grid col-span-3 grid-rows-2 max-h-screen">
                 <div className="row-span-1">
                     <Notes socket={socket} />
                 </div>
-                <div className="row-span-2">
+                <div className="row-span-1">
                     <Chat socket={socket} />
                 </div>
             </div>

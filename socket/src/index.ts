@@ -53,19 +53,51 @@ io.on("connection", (socket) => {
 
     socket.on('save-state-on-server', (state) =>  {
         if (state.action === 'add' || state.action === 'modified') {
+            // console.log("State: ", state)
             
             if (!boardsStateMap.has(boardId)) {
                 boardsStateMap.set(boardId, [state.canvasState])
                 boardsStateIndexMap.set(boardId, 0)
             }
             else {
-                boardsStateMap.set(boardId, [...boardsStateMap.get(boardId)!, state.canvasState])
-                boardsStateIndexMap.set(boardId, boardsStateMap.get(boardId)!.length-1)
+                const index= boardsStateIndexMap.get(boardId)!
+                const states= boardsStateMap.get(boardId)!
+                if (index < states.length-1) {
+                    states.splice(index+1, states.length-1)
+                }
+                states.push(state.canvasState)
+                boardsStateIndexMap.set(boardId, index+1)
             }
             // console.log("States: ", boardsStateMap)
             // console.log("Index: ", boardsStateIndexMap)
         } 
     } )
+
+    socket.on("undo-initialized", () => {
+        if (boardsStateMap.has(boardId) && boardsStateIndexMap.has(boardId) && boardsStateIndexMap.get(boardId)! > 0) {
+            const index= boardsStateIndexMap.get(boardId)!
+            boardsStateIndexMap.set(boardId, index-1)
+            const state= boardsStateMap.get(boardId)![index-1]
+            io.in(boardId).emit('undo-redo-state', state)
+        }
+        else {
+            io.in(boardId).emit('undo-redo-state', null)
+        }
+    })
+
+    socket.on("redo-initialized", () => {
+        // console.log("StateIndex: ", boardsStateIndexMap)
+        if (boardsStateMap.has(boardId) && boardsStateIndexMap.has(boardId) && boardsStateIndexMap.get(boardId)! < boardsStateMap.get(boardId)!.length-1) {
+            const index= boardsStateIndexMap.get(boardId)!
+            boardsStateIndexMap.set(boardId, index+1)
+            const state= boardsStateMap.get(boardId)![index+1]
+            // console.log("Redo state: ", state, "Redo index: ", index+1)
+            io.in(boardId).emit('undo-redo-state', state)
+        }
+        else {
+            io.in(boardId).emit('undo-redo-state', null)
+        }
+    })
 
     socket.on("disconnect", () => {
         console.log("User disconnected: ", socket.id)
