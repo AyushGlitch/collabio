@@ -14,8 +14,18 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
 
 
     const emitObjectData = (action: any, modifiedObject: any) => {
-        console.log("Emitting object data: ", modifiedObject)
+        // console.log("Emitting object data: ", modifiedObject)
         socket!.emit('object-data-to-server', { action, modifiedObject: modifiedObject });
+
+        if (action === 'add') {
+            let state= canvas!.toJSON()
+            const canvasObjects= canvas!.getObjects()
+            // console.log("Canvas Objects: ", canvasObjects)
+            state.objectIds= canvasObjects.map( (obj) => obj.get('id')) 
+            // console.log("Canvas State: ", state)
+
+            socket!.emit('save-state-on-server', {action, canvasState: state})
+        }
     };
     
 
@@ -25,7 +35,7 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
             const objId= data.modifiedObject.id
             // console.log("Shape: ", shape)
             // console.log("Object ID: ", objId)
-            console.log("Modified object: ", data.modifiedObject)
+            // console.log("Modified object: ", data.modifiedObject)
 
             let newObj: fabric.FabricObject
             switch(shape) {
@@ -42,7 +52,7 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
                     newObj= new fabric.Path(data.modifiedObject.obj.path, data.modifiedObject.obj)
                     break
             }
-            newObj!.set({'id': data.modifiedObject.id, 'shape': shape});
+            newObj!.set({'id': objId, 'shape': shape});
             // console.log("New object: ", newObj)
             canvas.add(newObj!)
             canvas.renderAll()
@@ -58,19 +68,49 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
     };
 
 
+    async function handleInitialCanvasLoad(data: any) {
+        await canvas!.loadFromJSON(data, 
+            () => {
+                canvas!.requestRenderAll()
+                // console.log("Canvas Objects: ", canvas!._objects)
+            }, 
+        )
+        canvas!._objects= canvas!._objects.map( (obj, i) => {
+            obj.set({'id': data.objectIds[i]})
+            return obj
+        } )
+    }
+
+
     useEffect( () => {
         if (!canvas || !socket) {
             return
         }
 
+        socket.emit('get-initial-state', (data: any) => {
+            // console.log("Initial state: ", data)
+            if (data) {
+                handleInitialCanvasLoad(data)
+            }
+            // console.log("Objects: ", canvas._objects)
+        })
+
         canvas!.on("object:modified", (e) => {
             if (e.target) {
-                // console.log("Object modified: ", e.target)
+                // console.log("Object modified: ", e.target.toJSON())
                 const modifiedObj= {
                     obj: e.target,
                     id: e.target.get('id')
                 }
                 emitObjectData("modify", modifiedObj)
+
+                // console.log(canvas)
+                let state= canvas!.toJSON()
+                const canvasObjects= canvas.getObjects()
+                // console.log("Canvas Objects: ", canvasObjects)
+                state.objectIds= canvasObjects.map( (obj) => obj.get('id')) 
+                // console.log("Canvas State: ", state)
+                socket!.emit('save-state-on-server', {action: "modified", canvasState: state})
             }
         })
 
@@ -88,7 +128,7 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
             const objId= new Date().getTime()
             currPathRef.current= objId
             e.path.set({'id': objId, 'shape': "path"});
-            console.log("Path Before Created: ", e.path)
+            // console.log("Path Before Created: ", e.path)
         })
 
         canvas!.on("path:created", (e) => {
@@ -101,7 +141,7 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
                     id: objId,
                     shape: "path"
                 }
-                console.log("Path data: ", pathData)
+                // console.log("Path data: ", pathData)
                 emitObjectData("add", modifiedObj)
             }
         })
@@ -109,6 +149,11 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
         socket!.on('object-data-from-server', (data) => {
             handleReceivedObjectData(data, canvas!);
         });
+
+        // socket!.on('initial-state', (state) => {
+        //     canvas!.loadFromJSON(state, canvas?.renderAll.bind(canvas))
+        //     console.log("Initial state: ", state)
+        // })
     }, [canvas, socket] )
 
 
