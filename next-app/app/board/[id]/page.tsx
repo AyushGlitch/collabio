@@ -22,7 +22,7 @@ export default function Page({params} : {params: {id: string}}) {
             </div>
             <div className="grid col-span-3 grid-rows-2 max-h-screen">
                 <div className="row-span-1">
-                    <Notes socket={socket} />
+                    <Notes socket={socket} boardId={params.id} />
                 </div>
                 <div className="row-span-1">
                     <Chat socket={socket} boardId={params.id} />

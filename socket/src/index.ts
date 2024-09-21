@@ -117,6 +117,10 @@ io.on("connection", (socket) => {
         socket.broadcast.to(boardId).emit("chat-message", message)
     })
 
+    socket.on("note-modified", (note) => {
+        socket.broadcast.to(boardId).emit("note-modified", note)
+    })
+
     socket.on("disconnect", () => {
         socket.leave(boardId)
         if (boardsUsersMap.get(boardId) && boardsUsersMap.get(boardId)!.length > 0) {
