@@ -4,15 +4,13 @@ import { io, Socket } from "socket.io-client";
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/store/user";
 import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 
 export default function useSocket({boardId}: {boardId: string}) {
     const [socket, setSocket]= useState<Socket | null>(null);
-    const user= useUserStore( (state) => state.getUser() )
+    const [user, setUser]= useUserStore( (state) => [state.getUser(), state.setUser] )
 
-    // if (user.id === "" || user.id === undefined) {
-    //     redirect('/auth/signin')
-    // }
 
     useEffect( () => {
         const socket= io("http://localhost:8000", {
@@ -36,7 +34,7 @@ export default function useSocket({boardId}: {boardId: string}) {
             socket.disconnect()
         }
 
-    }, [boardId] )
+    }, [boardId, user] )
 
     return socket
 }

@@ -5,10 +5,16 @@ import Whiteboard from "./_components/Whiteboard"
 import Chat from "./_components/Chat"
 import useSocket from "@/hooks/useSocket"
 import Loader from "@/components/Loader"
+import { useUserStore } from "@/store/user"
 
 
 export default function Page({params} : {params: {id: string}}) {
     const socket= useSocket({boardId: params.id})
+    const user = useUserStore((state) => state.user);
+
+    if (user.id === "" || !user.id) {
+        return <Loader size={200} />
+    }
 
     return (
         !socket ? (
