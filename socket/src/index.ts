@@ -19,6 +19,8 @@ const boardsStateIndexMap= new Map<string, number>()
 
 const boardsUsersMap= new Map<string, string[]>()
 
+const voiceRooms: any = {};
+
 
 
 io.on("connection", (socket) => {
@@ -83,6 +85,7 @@ io.on("connection", (socket) => {
         } 
     } )
 
+
     socket.on("undo-initialized", () => {
         if (boardsStateMap.has(boardId) && boardsStateIndexMap.has(boardId) && boardsStateIndexMap.get(boardId)! > 0) {
             const index= boardsStateIndexMap.get(boardId)!
@@ -94,6 +97,7 @@ io.on("connection", (socket) => {
             io.in(boardId).emit('undo-redo-state', null)
         }
     })
+
 
     socket.on("redo-initialized", () => {
         // console.log("StateIndex: ", boardsStateIndexMap)
@@ -109,9 +113,11 @@ io.on("connection", (socket) => {
         }
     })
 
+
     socket.on("erase-board", () => {
         io.in(boardId).emit('erase-board-client')
     })
+
 
     socket.on("chat-message", (message) => {
         socket.broadcast.to(boardId).emit("chat-message", message)
@@ -120,6 +126,50 @@ io.on("connection", (socket) => {
     socket.on("note-modified", (note) => {
         socket.broadcast.to(boardId).emit("note-modified", note)
     })
+
+
+    // Handle joining the room
+    socket.on("join-voice-room", (roomId, userId) => {
+        console.log(`User ${userId} joined room ${roomId}`);
+
+        // Add the user to the room
+        if (!voiceRooms[roomId]) {
+            voiceRooms[roomId] = [];
+        }
+        voiceRooms[roomId].push(userId);
+        socket.join(roomId);
+
+        // Notify everyone in the room about the new user
+        socket.broadcast.to(roomId).emit("new-user-voice", userId);
+
+        // Send all the users in the room to the newly joined user
+        io.to(socket.id).emit("user-joined-voice", voiceRooms[roomId]);
+    });
+
+    // Handle user leaving the room
+    socket.on("leave-voice-room", (roomId, userId) => {
+        console.log(`User ${userId} left room ${roomId}`);
+
+        // Remove user from the room
+        if (voiceRooms[roomId]) {
+            voiceRooms[roomId] = voiceRooms[roomId].filter((id:string) => id !== userId);
+        }
+        // Delete the room if empty
+        if (voiceRooms[roomId].length === 0) {
+            delete voiceRooms[roomId];
+        }
+
+        // Notify the room about the user leaving
+        socket.broadcast.to(roomId).emit("user-disconnected", userId);
+
+        // Remove the room if it's empty
+        if (voiceRooms[roomId].length === 0) {
+            delete voiceRooms[roomId];
+        }
+
+        socket.leave(roomId);
+    });
+
 
     socket.on("disconnect", () => {
         socket.leave(boardId)
@@ -135,7 +185,6 @@ io.on("connection", (socket) => {
         console.log("User disconnected: ", socket.id)
     })
 })
-
 
 
 server.listen(8000, () => {

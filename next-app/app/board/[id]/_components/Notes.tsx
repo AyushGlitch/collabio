@@ -50,7 +50,7 @@ export default function Notes ({socket, boardId} : {socket: Socket|null, boardId
             }
             else {
                 const data= await resp.json()
-                console.log(data)
+                // console.log(data)
                 setNotes(data)
             }
         }
