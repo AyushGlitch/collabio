@@ -4,10 +4,12 @@ import { useEffect } from "react"
 import { toast } from "sonner"
 import { useNotesStore } from "@/store/notes"
 import NoteCard from "./_components/NoteCard"
+import { useBoardsStore } from "@/store/board"
 
 
 export default function Notes() {
     const [notes, setNotes]= useNotesStore( state => [state.notes, state.setNotes] )
+    const [setBoards]= useBoardsStore( state => [state.setBoards] )
 
     useEffect( () => {
         async function getNotesList() {
@@ -29,6 +31,26 @@ export default function Notes() {
             }
         }
 
+
+        async function getBoardsList() {
+            const resp= await fetch(`/api/boards/list`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+        
+            if (resp.status !== 200) {
+                console.error("Failed to fetch boards")
+                toast.error("Failed to fetch boards")
+            }
+            else {
+                const data= await resp.json()
+                setBoards(data)
+            }
+        }
+
+        getBoardsList()
         getNotesList()
     }, [] )
 
