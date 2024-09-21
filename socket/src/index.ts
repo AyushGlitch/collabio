@@ -17,6 +17,9 @@ const io= new Server(server, {
 const boardsStateMap= new Map<string, string[]>()
 const boardsStateIndexMap= new Map<string, number>()
 
+const boardsUsersMap= new Map<string, string[]>()
+
+
 
 io.on("connection", (socket) => {
     const boardId= socket.handshake.query.boardId as string
@@ -28,6 +31,13 @@ io.on("connection", (socket) => {
 
     socket.on("join-room", ({boardId, userId}) => {
         socket.join(boardId)
+        if (!boardsUsersMap.has(boardId)) {
+            boardsUsersMap.set(boardId, [userId])
+        }
+        else {
+            boardsUsersMap.get(boardId)!.push(userId)
+        }
+        io.in(boardId).emit('user-joined', boardsUsersMap.get(boardId))
         console.log(`User ${userId} joined room ${boardId}`)
     })
 
@@ -68,7 +78,7 @@ io.on("connection", (socket) => {
                 states.push(state.canvasState)
                 boardsStateIndexMap.set(boardId, index+1)
             }
-            // console.log("States: ", boardsStateMap)
+            console.log("States: ", boardsStateMap)
             // console.log("Index: ", boardsStateIndexMap)
         } 
     } )
@@ -99,7 +109,25 @@ io.on("connection", (socket) => {
         }
     })
 
+    socket.on("erase-board", () => {
+        io.in(boardId).emit('erase-board-client')
+    })
+
+    socket.on("chat-message", (message) => {
+        socket.broadcast.to(boardId).emit("chat-message", message)
+    })
+
     socket.on("disconnect", () => {
+        socket.leave(boardId)
+        if (boardsUsersMap.get(boardId) && boardsUsersMap.get(boardId)!.length > 0) {
+            boardsUsersMap.get(boardId)!.splice(boardsUsersMap.get(boardId)!.indexOf(userId), 1)
+        }
+        if (boardsUsersMap.get(boardId) && boardsUsersMap.get(boardId)!.length === 0) {
+            boardsUsersMap.delete(boardId)
+            boardsStateMap.delete(boardId)
+            boardsStateIndexMap.delete(boardId)
+        }
+        io.in(boardId).emit('user-joined', boardsUsersMap.get(boardId))
         console.log("User disconnected: ", socket.id)
     })
 })

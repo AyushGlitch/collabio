@@ -1,60 +1,58 @@
+import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { PenIcon, EraserIcon, CircleIcon, TriangleIcon, SquareIcon, Undo2Icon, Redo2Icon, SquareDashedMousePointer } from 'lucide-react'
 import { Socket } from 'socket.io-client'
 import * as fabric from 'fabric'
-import { useEffect, useRef, useState } from 'react'
 import { useUserStore } from '@/store/user'
 import { cn } from '@/lib/utils'
 
+type ToolType = "pen" | "square" | "circle" | "triangle" | "eraser" | "select" | null
 
-export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, socket: Socket|null}) {
-    const [currSelected, setCurrSelected]= useState<"pen"|"square"|"circle"|"triangle"|"eraser"|"select"|null>(null)
-    const userColour= useUserStore( state => state.userColour )
-    const currPathRef= useRef<number|null>(null)
+interface Toolbar2Props {
+    canvas: fabric.Canvas | null
+    socket: Socket | null
+}
 
+export default function Toolbar2({ canvas, socket }: Toolbar2Props) {
+    const [currSelected, setCurrSelected] = useState<ToolType>(null)
+    const userColour = useUserStore(state => state.userColour)
+    const currPathRef = useRef<number | null>(null)
 
-    const emitObjectData = (action: any, modifiedObject: any) => {
-        // console.log("Emitting object data: ", modifiedObject)
-        socket!.emit('object-data-to-server', { action, modifiedObject: modifiedObject });
+    const emitObjectData = (action: string, modifiedObject: any) => {
+        socket?.emit('object-data-to-server', { action, modifiedObject });
 
-        if (action === 'add') {
-            let state= canvas!.toJSON()
-            const canvasObjects= canvas!.getObjects()
-            // console.log("Canvas Objects: ", canvasObjects)
-            state.objectIds= canvasObjects.map( (obj) => obj.get('id')) 
-            // console.log("Canvas State: ", state)
-
-            socket!.emit('save-state-on-server', {action, canvasState: state})
+        if (action === 'add' && canvas) {
+            let state = canvas.toJSON()
+            const canvasObjects = canvas.getObjects()
+            state.objectIds = canvasObjects.map((obj) => obj.get('id'))
+            socket?.emit('save-state-on-server', { action, canvasState: state })
         }
     };
-    
 
     const handleReceivedObjectData = (data: any, canvas: fabric.Canvas) => {
         if (data.action === 'add') {
-            const shape= data.modifiedObject.shape
-            const objId= data.modifiedObject.id
-            // console.log("Shape: ", shape)
-            // console.log("Object ID: ", objId)
-            // console.log("Modified object: ", data.modifiedObject)
+            const shape = data.modifiedObject.shape
+            const objId = data.modifiedObject.id
 
-            let newObj: fabric.FabricObject
+            let newObj: fabric.Object
             switch(shape) {
                 case "square":
-                    newObj= new fabric.Rect(data.modifiedObject.obj)
+                    newObj = new fabric.Rect(data.modifiedObject.obj)
                     break
                 case "circle":
-                    newObj= new fabric.Circle(data.modifiedObject.obj)
+                    newObj = new fabric.Circle(data.modifiedObject.obj)
                     break
                 case "triangle":
-                    newObj= new fabric.Triangle(data.modifiedObject.obj)
+                    newObj = new fabric.Triangle(data.modifiedObject.obj)
                     break
                 case "path":
-                    newObj= new fabric.Path(data.modifiedObject.obj.path, data.modifiedObject.obj)
+                    newObj = new fabric.Path(data.modifiedObject.obj.path, data.modifiedObject.obj)
                     break
+                default:
+                    return
             }
-            newObj!.set({'id': objId, 'shape': shape});
-            // console.log("New object: ", newObj)
-            canvas.add(newObj!)
+            newObj.set({ 'id': objId, 'shape': shape });
+            canvas.add(newObj)
             canvas.renderAll()
         } 
         else if (data.action === 'modify') {
@@ -67,101 +65,114 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
         }
     };
 
-
     async function handleCanvasLoad(data: any) {
-        await canvas!.loadFromJSON(data, 
+        await canvas?.loadFromJSON(data, 
             () => {
-                canvas!.requestRenderAll()
-                // console.log("Canvas Objects: ", canvas!._objects)
+                canvas?.requestRenderAll()
             }, 
         )
-        canvas!._objects= canvas!._objects.map( (obj, i) => {
-            obj.set({'id': data.objectIds[i]})
-            return obj
-        } )
+        if (canvas) {
+            canvas._objects = canvas._objects.map((obj, i) => {
+                obj.set({ 'id': data.objectIds[i] })
+                return obj
+            })
+        }
     }
 
-
-    useEffect( () => {
+    useEffect(() => {
         if (!canvas || !socket) {
             return
         }
 
         socket.emit('get-initial-state', (data: any) => {
-            // console.log("Initial state: ", data)
             if (data) {
                 handleCanvasLoad(data)
             }
-            // console.log("Objects: ", canvas._objects)
         })
 
-        canvas!.on("object:modified", (e) => {
+        // @ts-ignore
+        const handleObjectModified = (e: fabric.IEvent) => {
             if (e.target) {
-                // console.log("Object modified: ", e.target.toJSON())
-                const modifiedObj= {
+                const modifiedObj = {
                     obj: e.target,
                     id: e.target.get('id')
                 }
                 emitObjectData("modify", modifiedObj)
 
-                // console.log(canvas)
-                let state= canvas!.toJSON()
-                const canvasObjects= canvas.getObjects()
-                // console.log("Canvas Objects: ", canvasObjects)
-                state.objectIds= canvasObjects.map( (obj) => obj.get('id')) 
-                // console.log("Canvas State: ", state)
-                socket!.emit('save-state-on-server', {action: "modified", canvasState: state})
+                let state = canvas.toJSON()
+                const canvasObjects = canvas.getObjects()
+                state.objectIds = canvasObjects.map((obj) => obj.get('id'))
+                socket.emit('save-state-on-server', { action: "modified", canvasState: state })
             }
-        })
+        }
 
-        canvas!.on("object:moving", (e) => {
+        // @ts-ignore
+        const handleObjectMoving = (e: fabric.IEvent) => {
             if (e.target) {
-                const modifiedObj= {
+                const modifiedObj = {
                     obj: e.target,
                     id: e.target.get('id')
                 }
                 emitObjectData("modify", modifiedObj)
             }
-        })
+        }
 
-        canvas!.on("before:path:created", (e) => {
-            const objId= new Date().getTime()
-            currPathRef.current= objId
-            e.path.set({'id': objId, 'shape': "path"});
-            // console.log("Path Before Created: ", e.path)
-        })
-
-        canvas!.on("path:created", (e) => {
+        // @ts-ignore
+        const handleBeforePathCreated = (e: fabric.IEvent) => {
+            const objId = new Date().getTime()
+            currPathRef.current = objId
             if (e.path) {
-                const objId= currPathRef.current
-                e.path.set({'id': objId, 'shape': "path"});
-                const pathData= e.path.toJSON()
-                const modifiedObj= {
+                e.path.set({ 'id': objId, 'shape': "path" });
+            }
+        }
+
+        // @ts-ignore
+        const handlePathCreated = (e: fabric.IEvent) => {
+            if (e.path) {
+                const objId = currPathRef.current
+                e.path.set({ 'id': objId, 'shape': "path" });
+                const pathData = e.path.toJSON()
+                const modifiedObj = {
                     obj: pathData,
                     id: objId,
                     shape: "path"
                 }
-                // console.log("Path data: ", pathData)
                 emitObjectData("add", modifiedObj)
             }
-        })
+        }
 
-        socket!.on('object-data-from-server', (data) => {
-            handleReceivedObjectData(data, canvas!);
+        canvas.on("object:modified", handleObjectModified)
+        canvas.on("object:moving", handleObjectMoving)
+        canvas.on("before:path:created", handleBeforePathCreated)
+        canvas.on("path:created", handlePathCreated)
+
+        socket.on('object-data-from-server', (data) => {
+            handleReceivedObjectData(data, canvas);
         });
 
-        // socket!.on('initial-state', (state) => {
-        //     canvas!.loadFromJSON(state, canvas?.renderAll.bind(canvas))
-        //     console.log("Initial state: ", state)
-        // })
-
         socket.on("undo-redo-state", (state) => {
-            if (state) {
-                canvas!.clear()
+            if (state && canvas) {
+                canvas._objects = []
                 handleCanvasLoad(state)
             }
         })
-    }, [canvas, socket] )
+
+        socket.on("erase-board-client", () => {
+            canvas.clear()
+            canvas.backgroundColor = "white"
+            canvas.renderAll()
+        })
+
+        return () => {
+            canvas.off("object:modified", handleObjectModified)
+            canvas.off("object:moving", handleObjectMoving)
+            canvas.off("before:path:created", handleBeforePathCreated)
+            canvas.off("path:created", handlePathCreated)
+            socket.off('object-data-from-server')
+            socket.off("undo-redo-state")
+            socket.off("erase-board-client")
+        }
+    }, [canvas, socket])
 
 
     function handleToolbarIconsClick(shape: "square"|"circle"|"triangle") {
@@ -232,8 +243,12 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
         socket?.emit("redo-initialized")
     }
 
+    function handleEraseBoard() {
+        socket?.emit("erase-board")
+    }
+
     return (
-        <div className="absolute flex gap-2 mt-2 left-1/3 z-30 text-black">
+        <div className="absolute flex gap-2 mt-2 left-1/4 z-30 text-black">
             <Button variant="ghost" size="icon" title="Select" onClick={() => handleSelectIconClick()} className={cn(!canvas?.isDrawingMode ? 'text-white bg-black' : '')}> 
                 <SquareDashedMousePointer className="h-6 w-6" />
             </Button>
@@ -254,6 +269,9 @@ export default function Toolbar2({canvas, socket}: {canvas: fabric.Canvas|null, 
             </Button>
             <Button variant="ghost" size="icon" title="Redo" onClick={() => handleRedoIconClick()}>
                 <Redo2Icon className="h-6 w-6" />
+            </Button>
+            <Button variant={"ghost"} size={"icon"} title={"Erase All"} onClick={() => handleEraseBoard()}>
+                <EraserIcon className="h-6 w-6" />
             </Button>
         </div>
     )

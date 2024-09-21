@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import * as fabric from "fabric";
-import Toolbar from "./Toolbar";
 import { useUserStore } from "@/store/user";
 import Toolbar2 from "./Toolbar2";
+import VoiceChat2 from "./VoiceChat2";
 
 
-export default function Whiteboard({socket} : {socket: Socket|null}) {
+export default function Whiteboard({socket, boardId} : {socket: Socket|null, boardId: string}) {
     const canvasRef= useRef(null)
     const canvasWrapperRef= useRef(null)
     const [canvas, setCanvas]= useState<fabric.Canvas|null>(null)
@@ -51,9 +51,10 @@ export default function Whiteboard({socket} : {socket: Socket|null}) {
 
 
     return (
-        <div className="h-full w-full bg-red-300 overflow-auto" ref={canvasWrapperRef}>
+        <div className="h-full w-full overflow-auto" ref={canvasWrapperRef}>
             {/* <Toolbar canvas={canvas} socket={socket} /> */}
             <Toolbar2 canvas={canvas} socket={socket} />
+            {/* <VoiceChat2 socket={socket} boardId={boardId} /> */}
             <canvas ref={canvasRef} className="border-4 border-emerald-400 overflow-auto" />
         </div>
     )
