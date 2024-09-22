@@ -24,21 +24,19 @@ export default function VoiceChat({
     useEffect(() => {
         if (!socket) return;
 
-        // Initialize PeerJS and join the room
         const initializePeer = async () => {
             try {
-                // Get user's audio stream
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 streamRef.current = stream;
 
-                // Create a new Peer instance with the user's ID
                 const peer = new Peer(user.id);
                 peerInstance.current = peer;
 
-                // Join the voice room with socket
-                socket.emit("join-voice-room", boardId, user.id);
+                peer.on('open', (id) => {
+                    console.log('My peer ID is: ' + id);
+                    socket.emit("join-voice-room", boardId, id);
+                });
 
-                // Handle incoming calls
                 peer.on("call", (call) => {
                     call.answer(stream);
                     call.on("stream", (userAudioStream) => {
@@ -46,25 +44,24 @@ export default function VoiceChat({
                     });
                 });
 
-                // Listen for users joining the voice room
                 socket.on("user-joined-voice", (users: string[]) => {
+                    console.log("Users in voice chat:", users);
                     setOnlineFriendIds(users);
                 });
 
-                // Handle new users joining and initiate calls
                 socket.on("new-user-voice", (userId: string) => {
+                    console.log("New user joined voice:", userId);
                     const call = peer.call(userId, stream);
-                    call?.on("stream", (userAudioStream) => {
+                    call.on("stream", (userAudioStream) => {
                         playAudioStream(userId, userAudioStream);
                     });
                 });
 
-                // Clean up on component unmount
                 return () => {
-                    // peer.destroy();
+                    peer.destroy();
                     socket.off("user-joined-voice");
-                    // socket.off("new-user-voice");
-                    // stream.getTracks().forEach((track) => track.stop());
+                    socket.off("new-user-voice");
+                    stream.getTracks().forEach((track) => track.stop());
                 };
             } catch (err) {
                 console.error("Failed to initialize peer or get audio stream", err);
@@ -72,11 +69,8 @@ export default function VoiceChat({
         };
 
         initializePeer();
-
-        // Ensure clean up if socket changes
     }, [socket, boardId, user]);
 
-    // Function to play audio streams for connected peers
     const playAudioStream = (userId: string, stream: MediaStream) => {
         if (!audioRefs.current[userId]) {
             const audio = new Audio();

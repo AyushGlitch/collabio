@@ -54,7 +54,7 @@ export default function Whiteboard({socket, boardId} : {socket: Socket|null, boa
         <div className="h-full w-full overflow-auto no-scrollbar" ref={canvasWrapperRef}>
             {/* <Toolbar canvas={canvas} socket={socket} /> */}
             <Toolbar2 canvas={canvas} socket={socket} />
-            <VoiceChat2 socket={socket} boardId={boardId} />
+            {/* <VoiceChat2 socket={socket} boardId={boardId} /> */}
             <canvas ref={canvasRef} className="border-8 border-emerald-400 overflow-auto" />
         </div>
     )

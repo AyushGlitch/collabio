@@ -63,6 +63,8 @@ export default function BoardNoteCard ({note, boardId, socket} : {note: Note, bo
     useEffect( () => {
         socket?.on("note-modified", (data: Note) => {
             modifyNote(data)
+            setNoteTitle(() => data.noteTitle)
+            setNoteBody(() => data.noteBody)
         })
     }, [] )
 

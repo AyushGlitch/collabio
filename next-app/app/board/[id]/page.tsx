@@ -6,6 +6,7 @@ import Chat from "./_components/Chat"
 import useSocket from "@/hooks/useSocket"
 import Loader from "@/components/Loader"
 import { useUserStore } from "@/store/user"
+import VoiceChat2 from "./_components/VoiceChat2"
 
 
 export default function Page({params} : {params: {id: string}}) {
@@ -25,6 +26,7 @@ export default function Page({params} : {params: {id: string}}) {
         (<div className="grid grid-cols-11 pt-[7%] max-h-screen gap-1">
             <div className="col-span-8 max-h-screen">
                 <Whiteboard socket={socket} boardId={params.id} />
+                {/* <VoiceChat2 socket={socket} boardId={params.id} /> */}
             </div>
             <div className="grid col-span-3 grid-rows-2 max-h-screen">
                 <div className="row-span-1">

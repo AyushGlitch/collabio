@@ -17,19 +17,28 @@ const io= new Server(server, {
 const boardsStateMap= new Map<string, string[]>()
 const boardsStateIndexMap= new Map<string, number>()
 
+const boardsUsersMap= new Map<string, string[]>()
+
 
 io.on("connection", (socket) => {
     const boardId= socket.handshake.query.boardId as string
     const userId= socket.handshake.query.userId as string
 
-    console.log("BoardId: ", boardId, "UserId: ", userId, "SocketId: ", socket.id)
-    // console.log("New connection: ", socket.id)
+    console.log("BoardId: ", boardId, "UserId: ", userId)
+    console.log("New connection: ", socket.id)
 
 
-    socket.on("join-room", ({ boardId, userId }) => {
-        socket.join(boardId);
-        console.log(`User ${userId} joined room ${boardId}`);
-    });
+    socket.on("join-room", ({boardId, userId}) => {
+        socket.join(boardId)
+        if (!boardsUsersMap.has(boardId)) {
+            boardsUsersMap.set(boardId, [userId])
+        }
+        else {
+            boardsUsersMap.get(boardId)!.push(userId)
+        }
+        io.in(boardId).emit('user-joined', boardsUsersMap.get(boardId)) 
+        console.log(`User ${userId} joined room ${boardId}`)
+    })
 
 
     socket.on('object-data-to-server', (data) => {
@@ -116,8 +125,31 @@ io.on("connection", (socket) => {
     })
 
 
+    // Handle joining the room
+    socket.on("join-voice-room", (roomId, userId) => {
+        const boardMembers= boardsUsersMap.get(boardId)
+        const voiceMembers= boardMembers?.filter((id) => id !== userId)
+
+        console.log("Users in room: ", boardsUsersMap.get(boardId))
+
+        // Send all the users in the room to the newly joined user
+        io.to(socket.id).emit("user-joined-voice", voiceMembers);
+        socket.broadcast.to(boardId).emit("new-user-voice", userId)   
+    });
+
+
     socket.on("disconnect", () => {
         socket.leave(boardId)
+        if (boardsUsersMap.get(boardId) && boardsUsersMap.get(boardId)!.length > 0) {
+            boardsUsersMap.get(boardId)!.splice(boardsUsersMap.get(boardId)!.indexOf(userId), 1)
+        }
+        if (boardsUsersMap.get(boardId) && boardsUsersMap.get(boardId)!.length === 0) {
+            boardsUsersMap.delete(boardId)
+            boardsStateMap.delete(boardId)
+            boardsStateIndexMap.delete(boardId)
+        }
+        io.in(boardId).emit('user-joined', boardsUsersMap.get(boardId))
+        // console.log("Users in room at disconnect: ", boardsUsersMap.get(boardId))
         console.log("User disconnected: ", socket.id)
     })
 })
