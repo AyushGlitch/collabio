@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { friendsAtom, useFriendsStore } from "@/store/friends";
+import { useFriendsStore } from "@/store/friends";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { useRecoilState } from "recoil";
