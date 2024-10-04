@@ -19,6 +19,12 @@ class SocketServer {
     private constructor() {
         const app = express();
         app.use(cors());
+
+        app.get('/', (req, res) => {
+            res.send("Server is running");
+            console.log("First request");
+        });
+
         const server = http.createServer(app);
         this.io = new Server(server, {
             cors: {

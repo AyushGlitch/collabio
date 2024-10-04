@@ -5,10 +5,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/index.ts",
-    "start": "node out/index.js",
+    "start": "prisma generate && node out/index.js",
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "server:build": "install && tsc"
   },
   "keywords": [],
   "author": "",
