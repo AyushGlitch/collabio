@@ -1,9 +1,17 @@
 import { auth } from "@/auth";
 import { prisma } from "@/prisma/prismaClient";
+import { get } from "https";
 import { NextRequest, NextResponse } from "next/server";
 
 
 export async function POST (req: NextRequest) {
+    function getRandomColor() {
+        const r= Math.floor(Math.random() * 256)
+        const g= Math.floor(Math.random() * 256)
+        const b= Math.floor(Math.random() * 256)
+        return `rgb(${r}, ${g}, ${b})`
+    }
+
     try {
         const session= await auth()
         if (!session?.user) {
@@ -32,10 +40,11 @@ export async function POST (req: NextRequest) {
                 members: {
                     createMany: {
                         data: addedFriends.map( (member) => ({
-                            userId: member
+                            userId: member,
+                            color: getRandomColor()
                         }) )
                     }
-                }
+                },
             }
         })
 

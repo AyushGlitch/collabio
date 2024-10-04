@@ -1,22 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { PenIcon, EraserIcon, CircleIcon, TriangleIcon, SquareIcon, Undo2Icon, Redo2Icon, SquareDashedMousePointer } from 'lucide-react'
+import { PenIcon, EraserIcon, CircleIcon, TriangleIcon, SquareIcon, Undo2Icon, Redo2Icon, SquareDashedMousePointer, SaveIcon } from 'lucide-react'
 import { Socket } from 'socket.io-client'
 import * as fabric from 'fabric'
-import { useUserStore } from '@/store/user'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 type ToolType = "pen" | "square" | "circle" | "triangle" | "eraser" | "select" | null
 
 interface Toolbar2Props {
     canvas: fabric.Canvas | null
     socket: Socket | null
+    userColour: string | null
 }
 
-export default function Toolbar2({ canvas, socket }: Toolbar2Props) {
+export default function Toolbar2({ canvas, socket, userColour }: Toolbar2Props) {
     const [currSelected, setCurrSelected] = useState<ToolType>(null)
-    const userColour = useUserStore(state => state.userColour)
     const currPathRef = useRef<number | null>(null)
+    const boardId = window.location.pathname.split("/")[2]
 
     const emitObjectData = (action: string, modifiedObject: any) => {
         socket?.emit('object-data-to-server', { action, modifiedObject });
@@ -182,8 +183,8 @@ export default function Toolbar2({ canvas, socket }: Toolbar2Props) {
         switch(shape) {
             case "square":
                 obj= new fabric.Rect({
-                    left: Math.random()*500,
-                    top: Math.random()*500,
+                    left: Math.random()*800,
+                    top: Math.random()*800,
                     fill: "transparent",
                     stroke: userColour,
                     width: 50,
@@ -193,8 +194,8 @@ export default function Toolbar2({ canvas, socket }: Toolbar2Props) {
                 break
             case "circle":
                 obj= new fabric.Circle({
-                    left: Math.random()*500,
-                    top: Math.random()*500,
+                    left: Math.random()*800,
+                    top: Math.random()*800,
                     fill: "transparent",
                     stroke: userColour,
                     radius: 25,
@@ -203,8 +204,8 @@ export default function Toolbar2({ canvas, socket }: Toolbar2Props) {
                 break
             case "triangle":
                 obj= new fabric.Triangle({
-                    left: Math.random()*500,
-                    top: Math.random()*500,
+                    left: Math.random()*800,
+                    top: Math.random()*800,
                     fill: "transparent",
                     stroke: userColour,
                     width: 50,
@@ -247,6 +248,29 @@ export default function Toolbar2({ canvas, socket }: Toolbar2Props) {
         socket?.emit("erase-board")
     }
 
+    async function handleSaveBoard() {
+        let state = canvas!.toJSON()
+        const canvasObjects = canvas!.getObjects()
+        state.objectIds = canvasObjects.map((obj) => obj.get('id'))
+
+        const resp= await fetch (`/api/boards/save`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ boardId, boardJSON: state })
+        })
+
+        if (resp.status !== 200) {
+            console.error("Failed to save board")
+            toast.error("Failed to save board")
+        }
+        else {
+            console.log("Board saved")
+            toast.success("Board saved")
+        }
+    }
+
     return (
         <div className="absolute flex gap-2 mt-2 left-1/4 z-30 text-black">
             <Button variant="ghost" size="icon" title="Select" onClick={() => handleSelectIconClick()} className={cn(!canvas?.isDrawingMode ? 'text-white bg-black' : '')}> 
@@ -272,6 +296,9 @@ export default function Toolbar2({ canvas, socket }: Toolbar2Props) {
             </Button>
             <Button variant={"ghost"} size={"icon"} title={"Erase All"} onClick={() => handleEraseBoard()}>
                 <EraserIcon className="h-6 w-6" />
+            </Button>
+            <Button variant={"ghost"} size={"icon"} title={"Save"} onClick={() => handleSaveBoard()}>
+                <SaveIcon className="h-6 w-6" />
             </Button>
         </div>
     )

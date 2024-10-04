@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useNotesStore } from "@/store/notes";
-import { PlusIcon, Trash2 } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { useEffect } from "react";
 import { Socket } from "socket.io-client";
 import { toast } from "sonner";
@@ -11,7 +11,7 @@ import BoardNoteCard from "./BoardNoteCard";
 
 
 export default function Notes ({socket, boardId} : {socket: Socket|null, boardId: string}) {
-    const [notes, addNote, setNotes]= useNotesStore( state => [state.notes, state.addNote, state.setNotes] )
+    const [notes, addNote, setNotes, getNotes, deleteNote]= useNotesStore( state => [state.notes, state.addNote, state.setNotes, state.getNotes, state.deleteNote] )
 
     async function handleAddNotes() {
         const resp= await fetch(`/api/notes/create`, {
@@ -29,8 +29,9 @@ export default function Notes ({socket, boardId} : {socket: Socket|null, boardId
         else {
             const data= await resp.json()
             addNote(data)
+            socket?.emit("new-note-created", { data })
             toast.success("Note created")
-            console.log("Note created")
+            // console.log("Note created")
         }
     }
 
@@ -58,6 +59,17 @@ export default function Notes ({socket, boardId} : {socket: Socket|null, boardId
         if (notes.length=== 0) {
             getNotesList()
         }
+
+        socket?.on("add-new-note", (data) => {
+            // console.log("New note received", data.data)
+            addNote(data.data)
+            // console.log("Notes ", getNotes())
+        })
+
+        socket?.on("remove-deleted-note", ( noteId ) => {
+            deleteNote(noteId.noteId)
+            // console.log("Note deleted", noteId.noteId)
+        })
     }, [] )
 
     return (

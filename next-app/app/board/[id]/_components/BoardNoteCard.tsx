@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 
 export default function BoardNoteCard ({note, boardId, socket} : {note: Note, boardId: string, socket: Socket|null}) {
-    const [notes, getNotes, modifyNote, deleteNote]= useNotesStore( state => [state.notes, state.getNotes, state.modifyNote, state.deleteNote] )
+    const [notes, modifyNote, deleteNote, getNotes]= useNotesStore( state => [state.notes, state.modifyNote, state.deleteNote, state.getNotes] )
 
     const [noteTitle, setNoteTitle]= useState(note.noteTitle)
     const [noteBody, setNoteBody]= useState(note.noteBody)
@@ -31,6 +31,7 @@ export default function BoardNoteCard ({note, boardId, socket} : {note: Note, bo
         }
         else {
             deleteNote(noteId)
+            socket?.emit("note-deleted", { noteId })
             toast.success("Note deleted")
             console.log("Note deleted")
         }

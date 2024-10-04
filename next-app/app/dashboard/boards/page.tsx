@@ -6,12 +6,14 @@ import { useBoardsStore } from "@/store/board"
 import { useEffect } from "react"
 import { useFriendsStore } from "@/store/friends"
 import { toast } from "sonner"
+import { useUserColorsStore } from "@/store/userColors"
 
 
 export default function Boards() {
     const [boards, setBoards]= useBoardsStore( state => [state.boards, state.setBoards] )
     // const setFriends= useSetRecoilState(friendsAtom)
     const setFriends= useFriendsStore( state => state.setFriends )
+    const setUserColors= useUserColorsStore( state => state.setUserColors )
     // console.log("Boards:", boards);
 
     useEffect( () => {
@@ -55,6 +57,31 @@ export default function Boards() {
         getBoardsList()
         getFriendsList()
     }, [])
+
+
+    useEffect( () => {
+        async function getUserColours () {
+            const resp= await fetch(`/api/boards/getColours`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+
+            if (resp.status !== 200) {
+                console.error("Failed to fetch user colours")
+                toast.error("Failed to fetch user colours")
+            }
+            else {
+                const data= await resp.json()
+                // console.log("User Colours: ", data)
+                setUserColors(data)
+            }
+        }
+
+        getUserColours()
+
+    }, [boards, setUserColors] )
 
 
     return (

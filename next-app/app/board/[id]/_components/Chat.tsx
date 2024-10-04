@@ -25,7 +25,7 @@ export default function Chat({socket, boardId} : {socket: Socket|null, boardId: 
         }
 
         socket.on("chat-message", (message) => {
-            console.log("Message Received: ", message)
+            // console.log("Message Received: ", message)
             // console.log("Messages: ", getAllMessages())
             addMessage(message.boardId, message.message)
         })
@@ -86,7 +86,7 @@ export default function Chat({socket, boardId} : {socket: Socket|null, boardId: 
                             ) : (
                                 <div key={msg.msgId} className="flex flex-col w-2/3 items-start bg-slate-700 rounded-xl p-1 pl-3">
                                     <div className="text-sm font-bold">
-                                        {msg.username.length > 7 ? msg.username.slice(0, 7) + "..." : msg.username}
+                                        {msg.username.length > 13 ? msg.username.slice(0, 13) + "..." : msg.username}
                                     </div>
                                     <div className="text-xs font-medium break-words w-full whitespace-pre-wrap">
                                         {msg.message}

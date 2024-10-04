@@ -19,18 +19,18 @@ type userState= {
 
 type userStoreType= {
     user: User,
-    userColour: string,
+    // userColour: string,
     setUser: (user: userState['user']) => void,
     getUser: () => userState['user']
 }
 
 
-function selectUserColour() {
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
-    return `rgb(${r}, ${g}, ${b})`;
-}
+// function selectUserColour() {
+//     const r = Math.floor(Math.random() * 256);
+//     const g = Math.floor(Math.random() * 256);
+//     const b = Math.floor(Math.random() * 256);
+//     return `rgb(${r}, ${g}, ${b})`;
+// }
 
 
 export const useUserStore= create<userStoreType>() ( (set, get) => ( {
@@ -40,12 +40,12 @@ export const useUserStore= create<userStoreType>() ( (set, get) => ( {
         email: "",
         image: ""
     },
-    userColour: selectUserColour(),
+    // userColour: selectUserColour(),
     setUser: (user) => {
         set( () => ({
             user: user
         }) )
     },
     getUser: () => get().user,
-    getUserColour: () => get().userColour
+    // getUserColour: () => get().userColour
 } ) )

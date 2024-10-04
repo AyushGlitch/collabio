@@ -26,7 +26,7 @@ export const useNotesStore= create<notesStoreType>() ( (set, get) => ({
     },
     addNote: (note) => {
         set( (state) => ({
-            notes: [...state.notes, note]
+            notes: state.notes.find( (n) => n.noteId === note.noteId ) ? state.notes : [...state.notes, note]
         }) )
     },
     modifyNote: (note) => {

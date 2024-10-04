@@ -3,8 +3,6 @@
 import { io, Socket } from "socket.io-client";
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/store/user";
-import { redirect } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 
 export default function useSocket({boardId}: {boardId: string}) {
@@ -13,7 +11,7 @@ export default function useSocket({boardId}: {boardId: string}) {
 
 
     useEffect( () => {
-        const socket= io("http://localhost:8000", {
+        const socket= io(process.env.NEXT_PUBLIC_SOCKET_URL!, {
             query: {
                 boardId: boardId,
                 userId: user.id,
