@@ -50,11 +50,11 @@ export const Navbar= () => {
     }, [session])
     
     return (
-        <div className="absolute w-full top-0">
-            <div className="flex justify-between items-center py-3 px-5 bg-slate-900 rounded-b-3xl">
+        <div className="absolute w-full top-0 z-20">
+            <div className="flex justify-between items-center py-3 px-5 bg-slate-950 rounded-b-3xl border-b-2 border-white/40">
                 <div>
                     <Link href={'/'} className="flex gap-5 justify-center items-center">
-                        <Image src="/icon.jpeg" alt="Collabio" width={80} height={80} className="rounded-full" />
+                        <Image src="/icon.jpeg" alt="Collabio" width={60} height={60} className="rounded-full" />
                         <h1 className="text-3xl font-semibold">Collabio</h1>
                     </Link>
                 </div>

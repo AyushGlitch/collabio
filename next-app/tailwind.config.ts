@@ -80,12 +80,22 @@ const config = {
             "100%": {
                 transform: "translate(0px, 0px) scale(1)",
             }
-        }
+        },
+        "spin": {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'spin-reverse': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(-360deg)' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "blob": "blob 7s infinite"
+        "blob": "blob 7s infinite",
+        'spin-slow': 'spin 20s linear infinite',
+        'spin-reverse-slow': 'spin-reverse 20s linear infinite',
       },
     },
   },

@@ -7,6 +7,9 @@ export default async function Board() {
     if (!session?.user) {
         redirect('/auth/signin')
     }
+    else {
+        redirect('/dashboard')
+    }
 
     return (
         <div>
