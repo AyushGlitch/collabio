@@ -19,8 +19,11 @@ export default function Page({params} : {params: {id: string}}) {
 
     return (
         !socket ? (
-            <div className="flex h-screen w-full justify-center items-center">
+            <div className="flex flex-col h-screen w-full justify-center items-center">
                 <Loader size={200} />
+                <div className="h-1/3">
+                    <h1 className="text-4xl font-semibold text-slate-400 animate-pulse">Socket Server Booting Up</h1>
+                </div>
             </div>
         ) :
         (<div className="grid grid-cols-11 pt-[7%] max-h-screen gap-1">
