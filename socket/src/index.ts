@@ -18,6 +18,7 @@ class SocketServer {
 
     private constructor() {
         const app = express();
+        const port= process.env.PORT || 10000
         app.use(cors());
 
         app.get('/', (req, res) => {
@@ -34,8 +35,8 @@ class SocketServer {
 
         this.initializeSocketEvents();
 
-        server.listen(8000, () => {
-            console.log("Server running on port 8000");
+        server.listen(port, () => {
+            console.log(`Server is running on port ${port}`);
         });
     }
 
