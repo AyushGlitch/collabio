@@ -29,7 +29,7 @@ class SocketServer {
         const server = http.createServer(app);
         this.io = new Server(server, {
             cors: {
-                origin: process.env.FRONTEND_URL,
+                origin: "*",
             }
         });
 
