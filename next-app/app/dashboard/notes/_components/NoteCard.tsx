@@ -22,7 +22,7 @@ export default function NoteCard( {note}: {note: Note} ) {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ noteId: noteId })
+            body: JSON.stringify({ noteId: noteId, boardId: note.boardId })
         })
 
         if (resp.status !== 200) {
@@ -75,7 +75,7 @@ export default function NoteCard( {note}: {note: Note} ) {
 
             <div className=" w-full flex justify-around">
                 <Dialog>
-                    <DialogTrigger>
+                    <DialogTrigger asChild>
                         <Button className="bg-blue-400 w-32 font-bold text-base">
                             Edit
                         </Button>

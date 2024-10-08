@@ -12,13 +12,31 @@ export async function POST (req: NextRequest) {
         }
 
         const body= await req.json()
-        const note= await prisma.notes.create({
-            data: {
-                noteTitle: body.title,
-                noteBody: body.body,
-                boardId: body.boardId
-            }
-        })
+        const note= await prisma.$transaction( async (tx) => {
+            const newNote= await tx.notes.create({
+                data: {
+                    noteTitle: body.title,
+                    noteBody: body.body,
+                    boardId: body.boardId
+                }
+            })
+
+            await tx.boards.update({
+                where: {
+                    boardId: body.boardId
+                },
+                data: {
+                    notesCnt: {
+                        increment: 1
+                    },
+                    notesId: {
+                        push: newNote.noteId
+                    }
+                }
+            })
+
+            return newNote
+        } )
 
         // console.log(note)
         return NextResponse.json(note, { status: 200 });

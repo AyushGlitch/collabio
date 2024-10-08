@@ -9,6 +9,25 @@ import { toast } from "sonner"
 import { useUserColorsStore } from "@/store/userColors"
 
 
+function initializeSocketServer() {
+    try {
+        const response = fetch(process.env.NEXT_PUBLIC_SOCKET_URL + "/", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }).then( (res) => {
+            console.log("Socket server response:", res)
+        } ).catch( (err) => {
+            console.error("Socket server error:", err)
+        } )
+    } 
+    catch (error) {
+        console.error("Error initializing socket server:", error);
+    }
+}
+
+
 export default function Boards() {
     const [boards, setBoards]= useBoardsStore( state => [state.boards, state.setBoards] )
     // const setFriends= useSetRecoilState(friendsAtom)
@@ -50,10 +69,12 @@ export default function Boards() {
             }
             else {
                 const data= await resp.json()
+                // console.log("Boards: ", data)
                 setBoards(data)
             }
         }
 
+        initializeSocketServer()
         getBoardsList()
         getFriendsList()
     }, [])
