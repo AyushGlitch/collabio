@@ -34,10 +34,8 @@ export default async function Dashboard() {
         redirect('/auth/signin')
     }
 
-    useEffect(() => {
-        initializeSocketServer();
-      }, []);
-
+    // Initialize socket server
+    await initializeSocketServer();
     
     return (
         <div className="flex flex-col h-full justify-center items-center gap-14">
